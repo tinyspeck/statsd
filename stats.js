@@ -109,38 +109,34 @@ var run = function(config){
 
       for (key in timers) {
         if (timers[key].length > 0) {
-          var pctThreshold = config.percentThreshold || 90;
+          var percents = config.percents || [10,50,90];
+
           var values = timers[key].sort(function (a,b) { return a-b; });
           var count = values.length;
           var min = values[0];
           var max = values[count - 1];
 
-          var mean = min;
-          var maxAtThreshold = max;
-
-          if (count > 1) {
-            var thresholdIndex = Math.round(((100 - pctThreshold) / 100) * count);
-            var numInThreshold = count - thresholdIndex;
-            values = values.slice(0, numInThreshold);
-            maxAtThreshold = values[numInThreshold - 1];
-
-            // average the remaining timings
-            var sum = 0;
-            for (var i = 0; i < numInThreshold; i++) {
-              sum += values[i];
-            }
-
-            mean = sum / numInThreshold;
+          var percent_values = {};
+          for (var i=0; i<percents.length; i++) {
+            var idx = (count - Math.round(((100 - percents[i]) / 100) * count)) - 1;
+            if (idx < 0) idx = 0;
+            percent_values["percent_"+percents[i]] = values[idx];
           }
+
+          var sum = 0;
+          for (var i=0; i<count; i++) sum += values[i];
+          var mean = sum / count;
 
           timers[key] = [];
 
           var message = "";
+          message += 'stats.timers.' + key + '.' + config.hostname + '.min ' + min + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.' + config.hostname + '.max ' + max + ' ' + ts + "\n";
           message += 'stats.timers.' + key + '.' + config.hostname + '.mean ' + mean + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.' + config.hostname + '.upper ' + max + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.' + config.hostname + '.upper_' + pctThreshold + ' ' + maxAtThreshold + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.' + config.hostname + '.lower ' + min + ' ' + ts + "\n";
           message += 'stats.timers.' + key + '.' + config.hostname + '.count ' + count + ' ' + ts + "\n";
+          for (var i in percent_values) {
+            message += 'stats.timers.' + key + '.' + config.hostname + '.' + i + ' ' + percent_values[i] + ' ' + ts + "\n";
+          }
           statString += message;
 
           numStats += 1;
