@@ -69,8 +69,9 @@ config.configFile(process.argv[2], function (config, oldConfig) {
 
       for (key in counters) {
         var value = counters[key] / (flushInterval / 1000);
-        var message = 'stats.' + key + ' ' + value + ' ' + ts + "\n";
-        message += 'stats_counts.' + key + ' ' + counters[key] + ' ' + ts + "\n";
+        var message = "";
+        message += 'stats.counters.' + key + '.' + config.hostname + '.value ' + value + ' ' + ts + "\n";
+        message += 'stats.counters.' + key + '.' + config.hostname + '.count ' + counters[key] + ' ' + ts + "\n";
         statString += message;
         counters[key] = 0;
 
@@ -106,18 +107,18 @@ config.configFile(process.argv[2], function (config, oldConfig) {
           timers[key] = [];
 
           var message = "";
-          message += 'stats.timers.' + key + '.mean ' + mean + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper ' + max + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.upper_' + pctThreshold + ' ' + maxAtThreshold + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.lower ' + min + ' ' + ts + "\n";
-          message += 'stats.timers.' + key + '.count ' + count + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.' + config.hostname + '.mean ' + mean + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.' + config.hostname + '.upper ' + max + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.' + config.hostname + '.upper_' + pctThreshold + ' ' + maxAtThreshold + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.' + config.hostname + '.lower ' + min + ' ' + ts + "\n";
+          message += 'stats.timers.' + key + '.' + config.hostname + '.count ' + count + ' ' + ts + "\n";
           statString += message;
 
           numStats += 1;
         }
       }
 
-      statString += 'statsd.numStats ' + numStats + ' ' + ts + "\n";
+      statString += 'statsd.' + config.hostname + '.numStats ' + numStats + ' ' + ts + "\n";
       
       var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
 
