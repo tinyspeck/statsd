@@ -163,4 +163,4 @@ var run = function(config){
 
 // start it up
 console.log("Starting statsd...");
-run();
+run(config);
