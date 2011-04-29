@@ -1,13 +1,13 @@
 var dgram  = require('dgram')
   , sys    = require('sys')
   , net    = require('net')
-  , config = require('./config')
 
 var counters = {};
 var timers = {};
 var debugInt, flushInt, server;
 
-config.configFile(process.argv[2], function (config, oldConfig) {
+exports.run = function(config){
+
   if (! config.debug && debugInt) {
     clearInterval(debugInt); 
     debugInt = false;
@@ -130,5 +130,5 @@ config.configFile(process.argv[2], function (config, oldConfig) {
     }, flushInterval);
   }
 
-});
+};
 
