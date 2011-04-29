@@ -3,4 +3,4 @@
 # description: statsd
 # processname: node
 
-/usr/local/statsd/init.js 'config_prod.js' "$@"
+/usr/local/statsd/stats.js '/usr/local/statsd/config_prod.js' "$@"

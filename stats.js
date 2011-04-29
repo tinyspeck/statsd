@@ -1,12 +1,41 @@
+#!/usr/bin/node
+
 var dgram  = require('dgram')
   , sys    = require('sys')
   , net    = require('net')
+  , fs     = require('fs')
+
+var node = process.argv.shift();
+var file = process.argv.shift();
+var config_file = process.argv.shift();
+
+process.argv.unshift(file);
+process.argv.unshift(node);
+
+// this needs to be an abs path, or relative to the cd
+var config = require(config_file).config;
+
+// this is a TinySpeck specific way of getting the hostname, when
+// one wasn't specified in the config. we do this for most hosts,
+// but we use the config where we're running multiple statsd's on
+// a single server
+if (!config.hostname){
+        var hostname = fs.readFileSync('/etc/tshost', 'utf8');
+        hostname = hostname.replace(/\s+$/, '');
+        config.hostname = hostname;
+}
+
+// daemonize
+require('service').run({
+        lockFile: config.lock_file,
+        logFile : config.log_file,
+});
 
 var counters = {};
 var timers = {};
 var debugInt, flushInt, server;
 
-exports.run = function(config){
+var run = function(config){
 
   if (! config.debug && debugInt) {
     clearInterval(debugInt); 
@@ -132,3 +161,6 @@ exports.run = function(config){
 
 };
 
+// start it up
+console.log("Starting statsd...");
+run();
