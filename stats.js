@@ -144,13 +144,16 @@ var run = function(config){
       }
 
       statString += 'statsd.' + config.hostname + '.numStats ' + numStats + ' ' + ts + "\n";
-      
-      var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
 
-      graphite.on('connect', function() {
-        this.write(statString);
-        this.end();
-      });
+      try {
+        var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
+        graphite.on('connect', function() {
+          this.write(statString);
+          this.end();
+        });
+      } catch(e){
+        // no big deal
+      }
 
     }, flushInterval);
   }
