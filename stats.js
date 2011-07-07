@@ -147,12 +147,19 @@ var run = function(config){
 
       try {
         var graphite = net.createConnection(config.graphitePort, config.graphiteHost);
+        graphite.on('error', function() {
+          //log error'd stats in case we want to get them later
+          //this is a common case - we shouldn't go down just because graphite is down
+          sys.log(statString);
+        });
         graphite.on('connect', function() {
           this.write(statString);
           this.end();
         });
       } catch(e){
         // no big deal
+        //log error'd stats in case we want to get them later
+        sys.log(statString);
       }
 
     }, flushInterval);
